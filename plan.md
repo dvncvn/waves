@@ -66,3 +66,4 @@ Reference remote for eventual/published history: [https://github.com/dvncvn/wave
 - 2026-03-20: Pivoted to single-wave filled pixel-artifact look and de-emphasized plotter-first constraints.
 - 2026-03-20: Increased default canvas size and fixed slider/value display sync in preview UI.
 - 2026-03-20: Rewrote shape engine with 7 contour types, switched to filled polygons, restored grid mode as default with dense small-multiples layout.
+- 2026-03-20: Fixed foreground color propagation — shapes now use computed fg instead of hardcoded values; added color CLI flags.

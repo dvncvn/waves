@@ -107,6 +107,12 @@ Create a generative art system that produces waveform fields with controlled ran
 - Default canvas: 1800×1800, default grid: 16 cols × 24 rows.
 - Presets updated: calm (12×18), balanced (16×24), rough (20×30).
 
+## Implemented Decisions (Iteration 10)
+- Fixed foreground color not being applied: `fgColor`/`bgColor`/`colorMode`/`invert` were computed after drawing, and drawing functions hardcoded their own fills.
+- Moved fg/bg resolution before drawing calls and pass computed `fg` into both `drawFilledPixelWaveRows` and `drawGridField`.
+- CLI now accepts `--fgColor`, `--bgColor`, `--colorMode`, `--invert` flags.
+- All three entry points (CLI, dev server, preview UI) now correctly propagate color through to shapes.
+
 ## Pen Plotter Constraints (Deferred)
 - Single-stroke friendly geometry where possible.
 - Avoid excessive micro-segments that cause long plotting times.

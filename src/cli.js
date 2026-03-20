@@ -57,7 +57,11 @@ async function writeOne(args, seed, outPath) {
       gridCols: args.gridCols,
       gridRows: args.gridRows,
       rowsPerTile: args.rowsPerTile,
-      tilePadding: args.tilePadding
+      tilePadding: args.tilePadding,
+      fgColor: args.fgColor,
+      bgColor: args.bgColor,
+      colorMode: args.colorMode,
+      invert: args.invert
     }
   });
   const svg = generateWaveSvg(config);
@@ -84,6 +88,10 @@ async function main() {
         "  --energy <0..1>      Macro: waveform intensity",
         "  --contrast <0..1>    Macro: block contrast strength",
         "  --texture <0..1>     Macro: fine-grain roughness",
+        "  --fgColor <hex>      Foreground color (e.g. #ff0000)",
+        "  --bgColor <hex>      Background color (e.g. #ffffff)",
+        "  --colorMode <0|1>    0=mono, 1=generated palette",
+        "  --invert             Swap foreground/background",
         "  --batch              Enable seed range generation",
         "  --seedStart <n>      First seed for batch (default: --seed or 1)",
         "  --count <n>          Number of outputs in batch (default: 8)",

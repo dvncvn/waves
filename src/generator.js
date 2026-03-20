@@ -259,7 +259,7 @@ function genSawtoothDrift(rng, xStart, width, maxD, config) {
   return pts;
 }
 
-function drawFilledPixelWaveRows(config, rng, bounds) {
+function drawFilledPixelWaveRows(config, rng, bounds, fg) {
   const shapes = [];
   const rows = config.rows;
   const rowStep = rows > 1 ? bounds.height / (rows + 1) : bounds.height * 0.5;
@@ -308,7 +308,7 @@ function drawFilledPixelWaveRows(config, rng, bounds) {
     }
     d += ` L ${xN.toFixed(1)} ${yBase.toFixed(1)} Z`;
 
-    shapes.push(`<path d="${d}" fill="black" />`);
+    shapes.push(`<path d="${d}" fill="${fg}" />`);
   }
 
   return shapes;
@@ -440,7 +440,7 @@ function simpleShape(rng, cx, cy, w, h, fill = "black") {
   }
 }
 
-function drawGridField(config, baseSeed) {
+function drawGridField(config, baseSeed, fg) {
   const shapes = [];
   const innerWidth = config.width - config.margin * 2;
   const innerHeight = config.height - config.margin * 2;
@@ -449,7 +449,7 @@ function drawGridField(config, baseSeed) {
   const tileWidth = innerWidth / cols;
   const tileHeight = innerHeight / rows;
   const pad = config.tilePadding;
-  const fillColor = config.invert ? "white" : "black";
+  const fillColor = fg;
 
   const focusCx = config.focusX;
   const focusCy = config.focusY;
@@ -674,14 +674,6 @@ function generateColorPair(seed) {
 export function generateWaveSvg(userConfig = {}) {
   const config = buildConfigFromRaw({ presetName: "balanced", raw: userConfig });
   const rng = createRng(config.seed ?? 1);
-  const lines =
-    config.mode === "grid"
-      ? drawGridField(config, config.seed)
-      : drawFilledPixelWaveRows(config, rng, {
-          x: config.margin, y: config.margin,
-          width: config.width - config.margin * 2,
-          height: config.height - config.margin * 2
-        });
 
   let bg, fg;
   if (config.colorMode === 1) {
@@ -692,6 +684,15 @@ export function generateWaveSvg(userConfig = {}) {
     bg = config.bgColor || (config.invert ? "black" : "white");
     fg = config.fgColor || (config.invert ? "white" : "black");
   }
+
+  const lines =
+    config.mode === "grid"
+      ? drawGridField(config, config.seed, fg)
+      : drawFilledPixelWaveRows(config, rng, {
+          x: config.margin, y: config.margin,
+          width: config.width - config.margin * 2,
+          height: config.height - config.margin * 2
+        }, fg);
   const clip = buildClipDef(config.clipShape, config.width, config.height, config.clipInset);
 
   const parts = [
