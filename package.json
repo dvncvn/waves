@@ -1,0 +1,14 @@
+{
+  "name": "waves",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Generative waveform pen-plotter art with controlled randomness.",
+  "type": "module",
+  "scripts": {
+    "generate": "node src/cli.js",
+    "generate:sample": "node src/cli.js --seed 20260320 --out output/sample-seed-20260320.svg"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
