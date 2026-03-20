@@ -393,7 +393,7 @@ function drawRowField(config, rng, bounds) {
   return lines;
 }
 
-function simpleShape(rng, cx, cy, w, h) {
+function simpleShape(rng, cx, cy, w, h, fill = "black") {
   const kind = Math.floor(rng() * 6);
   const hw = w * rangeMap(rng(), 0, 1, 0.2, 0.7);
   const hh = h * rangeMap(rng(), 0, 1, 0.04, 0.18);
@@ -401,17 +401,17 @@ function simpleShape(rng, cx, cy, w, h) {
   switch (kind) {
     case 0: {
       const x1 = cx - hw / 2;
-      return `<rect x="${x1.toFixed(1)}" y="${(cy - hh / 2).toFixed(1)}" width="${hw.toFixed(1)}" height="${hh.toFixed(1)}" fill="black" />`;
+      return `<rect x="${x1.toFixed(1)}" y="${(cy - hh / 2).toFixed(1)}" width="${hw.toFixed(1)}" height="${hh.toFixed(1)}" fill="${fill}" />`;
     }
     case 1: {
       const r = Math.min(hw, hh) * rangeMap(rng(), 0, 1, 0.3, 0.8);
-      return `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r.toFixed(1)}" fill="black" />`;
+      return `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r.toFixed(1)}" fill="${fill}" />`;
     }
     case 2: {
       const x1 = cx - hw / 2;
       const x2 = cx + hw / 2;
       const sw = hh * rangeMap(rng(), 0, 1, 0.5, 2);
-      return `<line x1="${x1.toFixed(1)}" y1="${cy.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${cy.toFixed(1)}" stroke="black" stroke-width="${sw.toFixed(1)}" />`;
+      return `<line x1="${x1.toFixed(1)}" y1="${cy.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${cy.toFixed(1)}" stroke="${fill}" stroke-width="${sw.toFixed(1)}" />`;
     }
     case 3: {
       const th = h * rangeMap(rng(), 0, 1, 0.1, 0.3);
@@ -419,12 +419,12 @@ function simpleShape(rng, cx, cy, w, h) {
       const d = rng() < 0.5
         ? `M ${(cx - tw / 2).toFixed(1)} ${cy.toFixed(1)} L ${(cx + tw / 2).toFixed(1)} ${cy.toFixed(1)} L ${cx.toFixed(1)} ${(cy - th).toFixed(1)} Z`
         : `M ${(cx - tw / 2).toFixed(1)} ${cy.toFixed(1)} L ${(cx + tw / 2).toFixed(1)} ${cy.toFixed(1)} L ${cx.toFixed(1)} ${(cy + th).toFixed(1)} Z`;
-      return `<path d="${d}" fill="black" />`;
+      return `<path d="${d}" fill="${fill}" />`;
     }
     case 4: {
       const vw = hh * rangeMap(rng(), 0, 1, 0.3, 1.2);
       const vh = h * rangeMap(rng(), 0, 1, 0.15, 0.35);
-      return `<rect x="${(cx - vw / 2).toFixed(1)}" y="${(cy - vh / 2).toFixed(1)}" width="${vw.toFixed(1)}" height="${vh.toFixed(1)}" fill="black" />`;
+      return `<rect x="${(cx - vw / 2).toFixed(1)}" y="${(cy - vh / 2).toFixed(1)}" width="${vw.toFixed(1)}" height="${vh.toFixed(1)}" fill="${fill}" />`;
     }
     default: {
       const count = 2 + Math.floor(rng() * 3);
@@ -433,7 +433,7 @@ function simpleShape(rng, cx, cy, w, h) {
       let svg = "";
       for (let i = 0; i < count; i++) {
         const dx = cx - hw / 2 + gap * (i + 0.5);
-        svg += `<circle cx="${dx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${dotR.toFixed(1)}" fill="black" />`;
+        svg += `<circle cx="${dx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${dotR.toFixed(1)}" fill="${fill}" />`;
       }
       return svg;
     }
@@ -449,39 +449,86 @@ function drawGridField(config, baseSeed) {
   const tileWidth = innerWidth / cols;
   const tileHeight = innerHeight / rows;
   const pad = config.tilePadding;
+  const fillColor = config.invert ? "white" : "black";
 
-  const focusCx = ((baseSeed * 3) % cols) / cols;
-  const focusCy = ((baseSeed * 7) % rows) / rows;
-  const focusR = 0.25 + (((baseSeed * 11) % 100) / 100) * 0.2;
+  const focusCx = config.focusX;
+  const focusCy = config.focusY;
+  const focusR = 0.45;
 
-  for (let gy = 0; gy < rows; gy += 1) {
-    for (let gx = 0; gx < cols; gx += 1) {
+  const mirrorMode = config.mirror; // 0=off, 1=horizontal, 2=vertical, 3=both
+  const mH = mirrorMode === 1 || mirrorMode === 3;
+  const mV = mirrorMode === 2 || mirrorMode === 3;
+  const gap = config.mirrorGap;
+  const halfGapH = mH ? gap / 2 : 0;
+  const halfGapV = mV ? gap / 2 : 0;
+
+  const srcCols = mH ? Math.ceil(cols / 2) : cols;
+  const srcRows = mV ? Math.ceil(rows / 2) : rows;
+
+  const srcWidth = mH ? (innerWidth - gap) / 2 : innerWidth;
+  const srcHeight = mV ? (innerHeight - gap) / 2 : innerHeight;
+  const srcTileW = srcWidth / srcCols;
+  const srcTileH = srcHeight / srcRows;
+
+  const originX = config.margin;
+  const originY = config.margin;
+  const mirrorOriginX = mH ? originX + srcWidth + gap : 0;
+  const mirrorOriginY = mV ? originY + srcHeight + gap : 0;
+
+  for (let gy = 0; gy < srcRows; gy += 1) {
+    for (let gx = 0; gx < srcCols; gx += 1) {
       const tileSeed = baseSeed + (gy * cols + gx) * 997;
       const rng = createRng(tileSeed);
       const roll = rng();
 
       if (roll < config.sparsity) continue;
 
-      const nx = gx / Math.max(1, cols - 1);
-      const ny = gy / Math.max(1, rows - 1);
+      const nx = gx / Math.max(1, srcCols - 1);
+      const ny = gy / Math.max(1, srcRows - 1);
       const distToFocus = Math.sqrt((nx - focusCx) ** 2 + (ny - focusCy) ** 2);
-      const focusBoost = distToFocus < focusR ? rangeMap(distToFocus, 0, focusR, 2.2, 1.0) : 1.0;
+      const focusBoost = distToFocus < focusR
+        ? rangeMap(distToFocus, 0, focusR, 3.0, 0.6)
+        : Math.max(0.3, 0.6 - (distToFocus - focusR) * 0.5);
 
-      const cellX = config.margin + gx * tileWidth + pad * 0.5;
-      const cellY = config.margin + gy * tileHeight + pad * 0.5;
-      const w = Math.max(4, tileWidth - pad);
-      const h = Math.max(4, tileHeight - pad);
+      const sv = config.scaleVariance;
+      const scaleRand = rangeMap(rng(), 0, 1, 1 - sv * 0.7, 1 + sv * 0.5);
+
+      const cellX = originX + gx * srcTileW + pad * 0.5;
+      const cellY = originY + gy * srcTileH + pad * 0.5;
+      const w = Math.max(4, srcTileW - pad);
+      const h = Math.max(4, srcTileH - pad);
       const cx = cellX + w * 0.5;
       const cy = cellY + h * 0.5;
 
+      const gravityShift = config.gravity * h * 0.35;
+
       if (roll < config.sparsity + config.simplicity) {
-        shapes.push(simpleShape(rng, cx, cy, w, h));
+        const el = simpleShape(rng, cx, cy + gravityShift, w * scaleRand, h * scaleRand, fillColor);
+        shapes.push(el);
+        if (mH) {
+          const mx = mirrorOriginX + srcWidth - (gx * srcTileW + srcTileW * 0.5);
+          shapes.push(simpleShape(createRng(tileSeed), mx, cy + gravityShift, w * scaleRand, h * scaleRand, fillColor));
+        }
+        if (mV) {
+          const my = mirrorOriginY + srcHeight - (gy * srcTileH + srcTileH * 0.5);
+          shapes.push(simpleShape(createRng(tileSeed), cx, my + gravityShift, w * scaleRand, h * scaleRand, fillColor));
+        }
+        if (mH && mV) {
+          const mx = mirrorOriginX + srcWidth - (gx * srcTileW + srcTileW * 0.5);
+          const my = mirrorOriginY + srcHeight - (gy * srcTileH + srcTileH * 0.5);
+          shapes.push(simpleShape(createRng(tileSeed), mx, my + gravityShift, w * scaleRand, h * scaleRand, fillColor));
+        }
         continue;
       }
 
-      const yBase = cy;
-      const cellAmpBudget = h * 0.3;
-      const localAmp = Math.min(cellAmpBudget, config.baseAmplitude * focusBoost * rangeMap(rng(), 0, 1, 0.15, 0.7));
+      const yBase = cy + gravityShift;
+      const cellAmpBudget = h * 0.3 * scaleRand;
+      const localAmp = Math.min(cellAmpBudget, config.baseAmplitude * focusBoost * scaleRand * rangeMap(rng(), 0, 1, 0.15, 0.7));
+
+      const gravBias = config.gravity;
+      const polarity = gravBias === 0
+        ? (rng() < 0.5 ? -1 : 1)
+        : (rng() < (0.5 + gravBias * 0.45) ? 1 : -1);
 
       const localConfig = {
         ...config,
@@ -493,24 +540,100 @@ function drawGridField(config, baseSeed) {
       const contour = buildContour(rng, w, localConfig);
       if (contour.length < 2) continue;
 
-      const polarity = rng() < 0.5 ? -1 : 1;
       const edgePoints = [];
       for (const pt of contour) {
         const deflection = Math.max(-localAmp, Math.min(localAmp, pt.y * polarity));
         edgePoints.push({ x: cellX + pt.x, y: yBase + deflection });
       }
 
-      const x0 = edgePoints[0].x;
-      const xN = edgePoints[edgePoints.length - 1].x;
-      let d = `M ${x0.toFixed(1)} ${yBase.toFixed(1)}`;
-      for (const ep of edgePoints) {
-        d += ` L ${ep.x.toFixed(1)} ${ep.y.toFixed(1)}`;
+      shapes.push(buildFilledPath(edgePoints, yBase, fillColor));
+
+      if (mH) {
+        const mPts = edgePoints.map(ep => ({
+          x: mirrorOriginX + srcWidth - (ep.x - originX),
+          y: ep.y
+        })).reverse();
+        shapes.push(buildFilledPath(mPts, yBase, fillColor));
       }
-      d += ` L ${xN.toFixed(1)} ${yBase.toFixed(1)} Z`;
-      shapes.push(`<path d="${d}" fill="black" />`);
+      if (mV) {
+        const mPts = edgePoints.map(ep => ({
+          x: ep.x,
+          y: mirrorOriginY + srcHeight - (ep.y - originY) + originY
+        }));
+        const mYBase = mirrorOriginY + srcHeight - (yBase - originY) + originY;
+        shapes.push(buildFilledPath(mPts, mYBase, fillColor));
+      }
+      if (mH && mV) {
+        const mPts = edgePoints.map(ep => ({
+          x: mirrorOriginX + srcWidth - (ep.x - originX),
+          y: mirrorOriginY + srcHeight - (ep.y - originY) + originY
+        })).reverse();
+        const mYBase = mirrorOriginY + srcHeight - (yBase - originY) + originY;
+        shapes.push(buildFilledPath(mPts, mYBase, fillColor));
+      }
     }
   }
   return shapes;
+}
+
+function buildFilledPath(edgePoints, yBase, fillColor) {
+  const x0 = edgePoints[0].x;
+  const xN = edgePoints[edgePoints.length - 1].x;
+  let d = `M ${x0.toFixed(1)} ${yBase.toFixed(1)}`;
+  for (const ep of edgePoints) {
+    d += ` L ${ep.x.toFixed(1)} ${ep.y.toFixed(1)}`;
+  }
+  d += ` L ${xN.toFixed(1)} ${yBase.toFixed(1)} Z`;
+  return `<path d="${d}" fill="${fillColor}" />`;
+}
+
+// 0=none, 1=circle, 2=oval, 3=rounded-rect, 4=arch, 5=diamond, 6=hexagon
+function buildClipDef(shape, w, h, inset) {
+  if (shape === 0) return null;
+  const cx = w / 2, cy = h / 2;
+  const iw = w - inset * 2, ih = h - inset * 2;
+  const ix = inset, iy = inset;
+  let el;
+
+  switch (shape) {
+    case 1: {
+      const r = Math.min(iw, ih) / 2;
+      el = `<circle cx="${cx}" cy="${cy}" r="${r}" />`;
+      break;
+    }
+    case 2: {
+      el = `<ellipse cx="${cx}" cy="${cy}" rx="${iw / 2}" ry="${ih / 2}" />`;
+      break;
+    }
+    case 3: {
+      const rr = Math.min(iw, ih) * 0.08;
+      el = `<rect x="${ix}" y="${iy}" width="${iw}" height="${ih}" rx="${rr}" ry="${rr}" />`;
+      break;
+    }
+    case 4: {
+      const rr = Math.min(iw, ih) * 0.5;
+      el = `<rect x="${ix}" y="${iy}" width="${iw}" height="${ih}" rx="${rr}" ry="${rr}" />`;
+      break;
+    }
+    case 5: {
+      const d = `M ${cx} ${iy} L ${ix + iw} ${cy} L ${cx} ${iy + ih} L ${ix} ${cy} Z`;
+      el = `<path d="${d}" />`;
+      break;
+    }
+    case 6: {
+      const pts = [];
+      for (let i = 0; i < 6; i++) {
+        const a = Math.PI / 3 * i - Math.PI / 2;
+        pts.push(`${(cx + Math.cos(a) * iw / 2).toFixed(1)},${(cy + Math.sin(a) * ih / 2).toFixed(1)}`);
+      }
+      el = `<polygon points="${pts.join(" ")}" />`;
+      break;
+    }
+    default:
+      return null;
+  }
+
+  return { def: `<clipPath id="vclip">${el}</clipPath>`, attr: 'clip-path="url(#vclip)"' };
 }
 
 export function generateWaveSvg(userConfig = {}) {
@@ -525,12 +648,24 @@ export function generateWaveSvg(userConfig = {}) {
           height: config.height - config.margin * 2
         });
 
-  return [
+  const bg = config.invert ? "black" : "white";
+  const fg = config.invert ? "white" : "black";
+  const clip = buildClipDef(config.clipShape, config.width, config.height, config.clipInset);
+
+  const parts = [
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${config.width} ${config.height}" width="${config.width}" height="${config.height}">`,
-    `  <rect x="0" y="0" width="${config.width}" height="${config.height}" fill="white" />`,
-    `  <g fill="black" stroke="none">`,
-    ...lines.map((line) => `    ${line}`),
-    "  </g>",
-    "</svg>"
-  ].join("\n");
+    `  <rect x="0" y="0" width="${config.width}" height="${config.height}" fill="${bg}" />`
+  ];
+
+  if (clip) {
+    parts.push(`  <defs>${clip.def}</defs>`);
+    parts.push(`  <g fill="${fg}" stroke="none" ${clip.attr}>`);
+  } else {
+    parts.push(`  <g fill="${fg}" stroke="none">`);
+  }
+
+  parts.push(...lines.map((line) => `    ${line}`));
+  parts.push("  </g>", "</svg>");
+
+  return parts.join("\n");
 }

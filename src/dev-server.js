@@ -36,7 +36,16 @@ function buildConfig(params) {
       rowsPerTile: params.get("rowsPerTile"),
       tilePadding: params.get("tilePadding"),
       sparsity: params.get("sparsity"),
-      simplicity: params.get("simplicity")
+      simplicity: params.get("simplicity"),
+      invert: params.get("invert"),
+      gravity: params.get("gravity"),
+      scaleVariance: params.get("scaleVariance"),
+      focusX: params.get("focusX"),
+      focusY: params.get("focusY"),
+      mirror: params.get("mirror"),
+      mirrorGap: params.get("mirrorGap"),
+      clipShape: params.get("clipShape"),
+      clipInset: params.get("clipInset")
     }
   });
 }

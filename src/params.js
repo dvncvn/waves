@@ -20,7 +20,16 @@ export const PARAM_DEFS = {
   rowsPerTile: { default: 1, min: 1, max: 20, integer: true, step: 1 },
   tilePadding: { default: 4, min: 0, max: 60, integer: false, step: 1 },
   sparsity: { default: 0.1, min: 0, max: 0.8, integer: false, step: 0.01 },
-  simplicity: { default: 0.15, min: 0, max: 0.8, integer: false, step: 0.01 }
+  simplicity: { default: 0.15, min: 0, max: 0.8, integer: false, step: 0.01 },
+  invert: { default: 0, min: 0, max: 1, integer: true, step: 1 },
+  gravity: { default: 0, min: -1, max: 1, integer: false, step: 0.01 },
+  scaleVariance: { default: 0.3, min: 0, max: 1, integer: false, step: 0.01 },
+  focusX: { default: 0.5, min: 0, max: 1, integer: false, step: 0.01 },
+  focusY: { default: 0.5, min: 0, max: 1, integer: false, step: 0.01 },
+  mirror: { default: 0, min: 0, max: 3, integer: true, step: 1 },
+  mirrorGap: { default: 0, min: 0, max: 80, integer: false, step: 1 },
+  clipShape: { default: 0, min: 0, max: 6, integer: true, step: 1 },
+  clipInset: { default: 40, min: 0, max: 200, integer: false, step: 1 }
 };
 
 function clamp(value, min, max) {
@@ -67,7 +76,16 @@ export function buildConfigFromRaw({ presetName = "balanced", raw = {} } = {}) {
     rowsPerTile: raw.rowsPerTile ?? preset.rowsPerTile ?? PARAM_DEFS.rowsPerTile.default,
     tilePadding: raw.tilePadding ?? preset.tilePadding ?? PARAM_DEFS.tilePadding.default,
     sparsity: raw.sparsity ?? preset.sparsity ?? PARAM_DEFS.sparsity.default,
-    simplicity: raw.simplicity ?? preset.simplicity ?? PARAM_DEFS.simplicity.default
+    simplicity: raw.simplicity ?? preset.simplicity ?? PARAM_DEFS.simplicity.default,
+    invert: raw.invert ?? preset.invert ?? PARAM_DEFS.invert.default,
+    gravity: raw.gravity ?? preset.gravity ?? PARAM_DEFS.gravity.default,
+    scaleVariance: raw.scaleVariance ?? preset.scaleVariance ?? PARAM_DEFS.scaleVariance.default,
+    focusX: raw.focusX ?? preset.focusX ?? PARAM_DEFS.focusX.default,
+    focusY: raw.focusY ?? preset.focusY ?? PARAM_DEFS.focusY.default,
+    mirror: raw.mirror ?? preset.mirror ?? PARAM_DEFS.mirror.default,
+    mirrorGap: raw.mirrorGap ?? preset.mirrorGap ?? PARAM_DEFS.mirrorGap.default,
+    clipShape: raw.clipShape ?? preset.clipShape ?? PARAM_DEFS.clipShape.default,
+    clipInset: raw.clipInset ?? preset.clipInset ?? PARAM_DEFS.clipInset.default
   };
 
   const config = {};

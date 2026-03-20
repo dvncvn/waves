@@ -3,118 +3,252 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Waves Preview</title>
+    <title>waves</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300..700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
     <style>
       :root {
-        color-scheme: light;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        --bg: #0a0a0a;
+        --surface: #111111;
+        --surface-raised: #191919;
+        --border: #262626;
+        --border-subtle: #1e1e1e;
+        --text: #ededed;
+        --text-secondary: #888;
+        --text-tertiary: #555;
+        --accent: #fff;
+        --accent-muted: rgba(255,255,255,0.08);
+        --radius: 8px;
+        --radius-sm: 6px;
+        --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        --mono: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
       }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
       body {
-        margin: 0;
-        background: #efefef;
-        color: #111;
+        font-family: var(--font);
+        background: var(--bg);
+        color: var(--text);
+        font-size: 13px;
+        -webkit-font-smoothing: antialiased;
       }
+
       .layout {
         display: grid;
-        grid-template-columns: 360px 1fr;
+        grid-template-columns: 320px 1fr;
         min-height: 100vh;
       }
+
+      /* Panel */
       .panel {
-        background: #fff;
-        border-right: 1px solid #ddd;
-        padding: 16px;
-        overflow: auto;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        padding: 20px 16px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
       }
-      .panel h1 {
-        margin: 0 0 10px;
-        font-size: 18px;
+      .panel-header {
+        margin-bottom: 20px;
       }
-      .panel p {
-        margin: 0 0 16px;
+      .panel-header h1 {
+        font-family: var(--mono);
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        margin-bottom: 4px;
+      }
+      .panel-header p {
         font-size: 12px;
-        line-height: 1.45;
+        color: var(--text-tertiary);
+        line-height: 1.4;
       }
-      .field {
-        margin: 0 0 12px;
+
+      /* Sections */
+      .section {
+        padding: 14px 0;
+        border-top: 1px solid var(--border-subtle);
       }
+      .section-label {
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-tertiary);
+        margin-bottom: 12px;
+      }
+
+      /* Rows */
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+      .field { margin-bottom: 10px; }
+      .field:last-child { margin-bottom: 0; }
       .field label {
         display: block;
-        font-size: 12px;
-        margin-bottom: 6px;
-      }
-      .field input,
-      .field button {
-        width: 100%;
-        box-sizing: border-box;
-        border: 1px solid #bbb;
-        background: #fff;
-        padding: 7px 8px;
-        font: inherit;
-      }
-      .field input[type="range"] {
-        padding: 0;
-        border: 0;
-        accent-color: #111;
-      }
-      .row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-      }
-      .triple {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 6px;
-      }
-      .section-title {
-        margin: 14px 0 8px;
         font-size: 11px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #666;
+        color: var(--text-secondary);
+        margin-bottom: 5px;
+        font-weight: 400;
       }
-      .button-group {
+      .field label .hint {
+        font-size: 10px;
+        color: var(--text-tertiary);
+      }
+
+      /* Inputs */
+      input[type="number"] {
+        width: 100%;
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 7px 10px;
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 12px;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      input[type="number"]:focus {
+        border-color: #444;
+      }
+
+      /* Range slider */
+      .slider-row {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 6px;
-      }
-      .button-group.two {
-        grid-template-columns: 1fr 1fr;
-      }
-      .button-group button {
-        border: 1px solid #aaa;
-        background: #f7f7f7;
-        cursor: pointer;
-      }
-      .button-group button.active {
-        background: #111;
-        color: #fff;
-        border-color: #111;
-      }
-      .slider-wrap {
-        display: grid;
-        grid-template-columns: 1fr 68px;
+        grid-template-columns: 1fr 52px;
         align-items: center;
         gap: 8px;
       }
-      .value-pill {
-        border: 1px solid #bbb;
-        background: #fafafa;
-        text-align: center;
-        padding: 5px 4px;
-        font-size: 12px;
+      input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 4px;
+        background: var(--border);
+        border-radius: 2px;
+        outline: none;
+        cursor: pointer;
       }
-      .viewer {
-        padding: 20px;
-        overflow: auto;
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--text);
+        border: none;
+        cursor: pointer;
+        transition: transform 0.1s;
+      }
+      input[type="range"]::-webkit-slider-thumb:hover {
+        transform: scale(1.15);
+      }
+      input[type="range"]::-moz-range-thumb {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--text);
+        border: none;
+        cursor: pointer;
+      }
+      .val {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-secondary);
+        text-align: right;
+        user-select: none;
+      }
+
+      /* Buttons */
+      .btn-group {
         display: flex;
-        align-items: flex-start;
+        gap: 1px;
+        background: var(--border);
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+      }
+      .btn-group button {
+        flex: 1;
+        padding: 6px 4px;
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 400;
+        background: var(--surface-raised);
+        color: var(--text-secondary);
+        border: none;
+        cursor: pointer;
+        transition: background 0.12s, color 0.12s;
+        white-space: nowrap;
+      }
+      .btn-group button:hover {
+        background: #222;
+        color: var(--text);
+      }
+      .btn-group button.active {
+        background: var(--accent);
+        color: #000;
+        font-weight: 500;
+      }
+
+      /* Standalone buttons */
+      .action-btn {
+        padding: 7px 12px;
+        font-family: var(--mono);
+        font-size: 11px;
+        background: var(--surface-raised);
+        color: var(--text-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: all 0.12s;
+        width: 100%;
+      }
+      .action-btn:hover {
+        background: #222;
+        color: var(--text);
+        border-color: #333;
+      }
+
+      /* Toggle */
+      .toggle-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        font-family: var(--mono);
+        font-size: 11px;
+        background: var(--surface-raised);
+        color: var(--text-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: all 0.12s;
+        width: 100%;
+        text-align: center;
         justify-content: center;
       }
+      .toggle-btn:hover { border-color: #333; }
+      .toggle-btn.active {
+        background: var(--accent);
+        color: #000;
+        border-color: var(--accent);
+        font-weight: 500;
+      }
+
+      /* Viewer */
+      .viewer {
+        padding: 32px;
+        overflow: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+        min-height: 100vh;
+      }
       .frame {
-        background: #fff;
-        border: 1px solid #ddd;
-        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+        border-radius: 2px;
+        overflow: hidden;
+        box-shadow: 0 0 0 1px var(--border), 0 8px 40px rgba(0,0,0,0.4);
         width: 100%;
         max-width: 100%;
       }
@@ -123,29 +257,62 @@
         width: 100%;
         height: auto;
       }
-      .hint {
+      .frame {
+        perspective: 800px;
+        transform-style: preserve-3d;
+      }
+      .frame.transitioning svg {
+        animation: seed-shift 380ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
+      @keyframes seed-shift {
+        0%   { transform: scale(1) rotateY(0deg); filter: blur(0px); opacity: 1; }
+        25%  { transform: scale(0.96) rotateY(6deg); filter: blur(3px); opacity: 0.6; }
+        50%  { transform: scale(0.98) rotateY(-3deg); filter: blur(1.5px); opacity: 0.8; }
+        100% { transform: scale(1) rotateY(0deg); filter: blur(0px); opacity: 1; }
+      }
+
+      /* Status bar */
+      .status-bar {
+        margin-top: auto;
+        padding-top: 14px;
+        border-top: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .status-bar .status-text {
         font-size: 11px;
-        color: #666;
-        margin-top: 8px;
+        color: var(--text-tertiary);
+        font-family: var(--mono);
       }
-      #status {
-        font-size: 12px;
-        margin-top: 8px;
+      .status-bar .kbd-hint {
+        font-size: 10px;
+        color: var(--text-tertiary);
       }
-      .seed-actions button {
-        width: 100%;
+      .status-bar .kbd-hint kbd {
+        display: inline-block;
+        padding: 1px 5px;
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        font-family: var(--mono);
+        font-size: 10px;
+        margin: 0 1px;
       }
     </style>
   </head>
   <body>
     <main class="layout">
       <section class="panel">
-        <h1>Waves Preview</h1>
-        <p>Grid of filled waveform glyphs with controlled randomness.</p>
+        <div class="panel-header">
+          <h1>waves</h1>
+          <p>Generative waveform compositions</p>
+        </div>
 
-        <div class="field">
-          <label>Preset</label>
-          <div class="button-group" id="preset-group">
+        <!-- Preset -->
+        <div class="section">
+          <div class="section-label">Preset</div>
+          <div class="btn-group" id="preset-group">
             <button type="button" data-preset="calm">calm</button>
             <button type="button" data-preset="balanced" class="active">balanced</button>
             <button type="button" data-preset="rough">rough</button>
@@ -153,146 +320,251 @@
           <input id="preset" type="hidden" value="balanced" />
         </div>
 
-        <div class="section-title">Seed</div>
-        <div class="field">
-          <label for="seed">Seed</label>
-          <input id="seed" type="number" value="20260320" />
-        </div>
-        <div class="triple seed-actions">
-          <button id="seed-prev" type="button">-1</button>
-          <button id="randomize" type="button">random</button>
-          <button id="seed-next" type="button">+1</button>
-        </div>
-
-        <div class="section-title">Grid</div>
-        <div class="row">
+        <!-- Seed -->
+        <div class="section">
+          <div class="section-label">Seed</div>
           <div class="field">
-            <label for="gridCols">columns</label>
-            <div class="slider-wrap">
-              <input id="gridCols" type="range" min="1" max="40" step="1" value="16" />
-              <div class="value-pill" data-val-for="gridCols"></div>
-            </div>
+            <input id="seed" type="number" value="20260320" />
           </div>
-          <div class="field">
-            <label for="gridRows">rows</label>
-            <div class="slider-wrap">
-              <input id="gridRows" type="range" min="1" max="60" step="1" value="24" />
-              <div class="value-pill" data-val-for="gridRows"></div>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="field">
-            <label for="tilePadding">padding</label>
-            <div class="slider-wrap">
-              <input id="tilePadding" type="range" min="0" max="60" step="1" value="4" />
-              <div class="value-pill" data-val-for="tilePadding"></div>
-            </div>
-          </div>
-          <div class="field">
-            <label for="amp">amp</label>
-            <div class="slider-wrap">
-              <input id="amp" type="range" min="2" max="400" step="1" value="80" />
-              <div class="value-pill" data-val-for="amp"></div>
-            </div>
+          <div class="row-3" style="margin-top:8px">
+            <button id="seed-prev" class="action-btn" type="button">← prev</button>
+            <button id="randomize" class="action-btn" type="button">random</button>
+            <button id="seed-next" class="action-btn" type="button">next →</button>
           </div>
         </div>
 
-        <div class="row">
-          <div class="field">
-            <label for="sparsity">sparsity</label>
-            <div class="slider-wrap">
-              <input id="sparsity" type="range" min="0" max="0.8" step="0.01" value="0.1" />
-              <div class="value-pill" data-val-for="sparsity"></div>
+        <!-- Grid -->
+        <div class="section">
+          <div class="section-label">Grid</div>
+          <div class="row">
+            <div class="field">
+              <label>columns</label>
+              <div class="slider-row">
+                <input id="gridCols" type="range" min="1" max="40" step="1" value="16" />
+                <div class="val" data-val-for="gridCols"></div>
+              </div>
+            </div>
+            <div class="field">
+              <label>rows</label>
+              <div class="slider-row">
+                <input id="gridRows" type="range" min="1" max="60" step="1" value="24" />
+                <div class="val" data-val-for="gridRows"></div>
+              </div>
             </div>
           </div>
-          <div class="field">
-            <label for="simplicity">simplicity</label>
-            <div class="slider-wrap">
-              <input id="simplicity" type="range" min="0" max="0.8" step="0.01" value="0.15" />
-              <div class="value-pill" data-val-for="simplicity"></div>
+          <div class="row">
+            <div class="field">
+              <label>padding</label>
+              <div class="slider-row">
+                <input id="tilePadding" type="range" min="0" max="60" step="1" value="4" />
+                <div class="val" data-val-for="tilePadding"></div>
+              </div>
+            </div>
+            <div class="field">
+              <label>amplitude</label>
+              <div class="slider-row">
+                <input id="amp" type="range" min="2" max="400" step="1" value="80" />
+                <div class="val" data-val-for="amp"></div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>sparsity</label>
+              <div class="slider-row">
+                <input id="sparsity" type="range" min="0" max="0.8" step="0.01" value="0.1" />
+                <div class="val" data-val-for="sparsity"></div>
+              </div>
+            </div>
+            <div class="field">
+              <label>simplicity</label>
+              <div class="slider-row">
+                <input id="simplicity" type="range" min="0" max="0.8" step="0.01" value="0.15" />
+                <div class="val" data-val-for="simplicity"></div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="section-title">Style</div>
-        <div class="row">
-          <div class="field">
-            <label for="energy">energy</label>
-            <div class="slider-wrap">
-              <input id="energy" type="range" min="0" max="1" step="0.01" value="0.6" />
-              <div class="value-pill" data-val-for="energy"></div>
+        <!-- Style -->
+        <div class="section">
+          <div class="section-label">Style</div>
+          <div class="row">
+            <div class="field">
+              <label>energy</label>
+              <div class="slider-row">
+                <input id="energy" type="range" min="0" max="1" step="0.01" value="0.6" />
+                <div class="val" data-val-for="energy"></div>
+              </div>
+            </div>
+            <div class="field">
+              <label>contrast</label>
+              <div class="slider-row">
+                <input id="contrast" type="range" min="0" max="1" step="0.01" value="0.6" />
+                <div class="val" data-val-for="contrast"></div>
+              </div>
             </div>
           </div>
-          <div class="field">
-            <label for="contrast">contrast</label>
-            <div class="slider-wrap">
-              <input id="contrast" type="range" min="0" max="1" step="0.01" value="0.6" />
-              <div class="value-pill" data-val-for="contrast"></div>
+          <div class="row">
+            <div class="field">
+              <label>texture</label>
+              <div class="slider-row">
+                <input id="texture" type="range" min="0" max="1" step="0.01" value="0.5" />
+                <div class="val" data-val-for="texture"></div>
+              </div>
+            </div>
+            <div class="field">
+              <label>gravity</label>
+              <div class="slider-row">
+                <input id="gravity" type="range" min="-1" max="1" step="0.01" value="0" />
+                <div class="val" data-val-for="gravity"></div>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="field">
-          <label for="texture">texture</label>
-          <div class="slider-wrap">
-            <input id="texture" type="range" min="0" max="1" step="0.01" value="0.5" />
-            <div class="value-pill" data-val-for="texture"></div>
+          <div class="row">
+            <div class="field">
+              <label>scale variance</label>
+              <div class="slider-row">
+                <input id="scaleVariance" type="range" min="0" max="1" step="0.01" value="0.3" />
+                <div class="val" data-val-for="scaleVariance"></div>
+              </div>
+            </div>
+            <div class="field">
+              <label>invert <span class="hint">(i)</span></label>
+              <button type="button" id="invert-btn" class="toggle-btn" data-toggle="invert">off</button>
+              <input id="invert" type="hidden" value="0" />
+            </div>
           </div>
         </div>
 
-        <div class="section-title">Canvas</div>
-        <div class="field">
-          <label>Aspect ratio</label>
-          <div class="button-group" id="aspect-group" style="grid-template-columns: repeat(5, 1fr);">
-            <button type="button" data-aspect="1:1" class="active">1:1</button>
-            <button type="button" data-aspect="4:3">4:3</button>
-            <button type="button" data-aspect="3:4">3:4</button>
-            <button type="button" data-aspect="16:9">16:9</button>
-            <button type="button" data-aspect="9:16">9:16</button>
-          </div>
-        </div>
-        <div class="field">
-          <label for="canvasScale">scale</label>
-          <div class="slider-wrap">
-            <input id="canvasScale" type="range" min="400" max="4000" step="10" value="900" />
-            <div class="value-pill" data-val-for="canvasScale"></div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="field">
-            <label>width</label>
-            <div class="value-pill" data-val-for="width" style="margin-top:0"></div>
-            <input id="width" type="hidden" value="900" />
-          </div>
-          <div class="field">
-            <label>height</label>
-            <div class="value-pill" data-val-for="height" style="margin-top:0"></div>
-            <input id="height" type="hidden" value="900" />
+        <!-- Mirror -->
+        <div class="section">
+          <div class="section-label">Mirror <span class="hint" style="text-transform:none;letter-spacing:0">(m)</span></div>
+          <div class="row">
+            <div class="field">
+              <label>mode</label>
+              <div class="btn-group" id="mirror-group">
+                <button type="button" data-mirror="0" class="active">off</button>
+                <button type="button" data-mirror="1">H</button>
+                <button type="button" data-mirror="2">V</button>
+                <button type="button" data-mirror="3">H+V</button>
+              </div>
+              <input id="mirror" type="hidden" value="0" />
+            </div>
+            <div class="field">
+              <label>gap</label>
+              <div class="slider-row">
+                <input id="mirrorGap" type="range" min="0" max="80" step="1" value="0" />
+                <div class="val" data-val-for="mirrorGap"></div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div id="status">Ready.</div>
-        <div class="hint">Tip: use seed +/- to curate families, energy/contrast/texture for style.</div>
+        <!-- Focus -->
+        <div class="section">
+          <div class="section-label">Focus</div>
+          <div class="row">
+            <div class="field">
+              <label>x</label>
+              <div class="slider-row">
+                <input id="focusX" type="range" min="0" max="1" step="0.01" value="0.5" />
+                <div class="val" data-val-for="focusX"></div>
+              </div>
+            </div>
+            <div class="field">
+              <label>y</label>
+              <div class="slider-row">
+                <input id="focusY" type="range" min="0" max="1" step="0.01" value="0.5" />
+                <div class="val" data-val-for="focusY"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Frame -->
+        <div class="section">
+          <div class="section-label">Frame <span class="hint" style="text-transform:none;letter-spacing:0">(0–6)</span></div>
+          <div class="field">
+            <div class="btn-group" id="clip-group">
+              <button type="button" data-clip="0" class="active">—</button>
+              <button type="button" data-clip="1">○</button>
+              <button type="button" data-clip="2">⬮</button>
+              <button type="button" data-clip="3">▢</button>
+              <button type="button" data-clip="4">⌓</button>
+              <button type="button" data-clip="5">◇</button>
+              <button type="button" data-clip="6">⬡</button>
+            </div>
+            <input id="clipShape" type="hidden" value="0" />
+          </div>
+          <div class="field">
+            <label>inset</label>
+            <div class="slider-row">
+              <input id="clipInset" type="range" min="0" max="200" step="1" value="40" />
+              <div class="val" data-val-for="clipInset"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Canvas -->
+        <div class="section">
+          <div class="section-label">Canvas</div>
+          <div class="field">
+            <label>aspect ratio</label>
+            <div class="btn-group" id="aspect-group">
+              <button type="button" data-aspect="1:1" class="active">1:1</button>
+              <button type="button" data-aspect="4:3">4:3</button>
+              <button type="button" data-aspect="3:4">3:4</button>
+              <button type="button" data-aspect="16:9">16:9</button>
+              <button type="button" data-aspect="9:16">9:16</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>scale</label>
+            <div class="slider-row">
+              <input id="canvasScale" type="range" min="400" max="4000" step="10" value="900" />
+              <div class="val" data-val-for="canvasScale"></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>width</label>
+              <div class="val" data-val-for="width"></div>
+              <input id="width" type="hidden" value="900" />
+            </div>
+            <div class="field">
+              <label>height</label>
+              <div class="val" data-val-for="height"></div>
+              <input id="height" type="hidden" value="900" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="status-bar">
+          <span class="status-text" id="status">Ready</span>
+          <span class="kbd-hint">
+            <kbd>space</kbd> random
+            <kbd>←</kbd><kbd>→</kbd> seed
+          </span>
+        </div>
       </section>
+
       <section class="viewer">
         <div class="frame" id="svg-frame"></div>
       </section>
     </main>
+
     <script>
       const ids = [
-        "preset",
-        "seed",
-        "gridCols",
-        "gridRows",
-        "tilePadding",
-        "amp",
-        "sparsity",
-        "simplicity",
-        "energy",
-        "contrast",
-        "texture",
-        "width",
-        "height"
+        "preset", "seed",
+        "gridCols", "gridRows", "tilePadding", "amp",
+        "sparsity", "simplicity",
+        "energy", "contrast", "texture", "gravity", "scaleVariance",
+        "focusX", "focusY",
+        "invert", "mirror", "mirrorGap",
+        "clipShape", "clipInset",
+        "width", "height"
       ];
       const els = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
       const frame = document.getElementById("svg-frame");
@@ -304,19 +576,16 @@
       let timer = null;
       let presetValues = {};
       const keyMap = {
-        seed: "seed",
-        preset: null,
-        gridCols: "gridCols",
-        gridRows: "gridRows",
-        tilePadding: "tilePadding",
-        amp: "baseAmplitude",
-        sparsity: "sparsity",
-        simplicity: "simplicity",
-        energy: "styleEnergy",
-        contrast: "styleContrast",
-        texture: "styleTexture",
-        width: "width",
-        height: "height"
+        seed: "seed", preset: null,
+        gridCols: "gridCols", gridRows: "gridRows",
+        tilePadding: "tilePadding", amp: "baseAmplitude",
+        sparsity: "sparsity", simplicity: "simplicity",
+        energy: "styleEnergy", contrast: "styleContrast", texture: "styleTexture",
+        gravity: "gravity", scaleVariance: "scaleVariance",
+        focusX: "focusX", focusY: "focusY",
+        invert: "invert", mirror: "mirror", mirrorGap: "mirrorGap",
+        clipShape: "clipShape", clipInset: "clipInset",
+        width: "width", height: "height"
       };
 
       function params() {
@@ -330,10 +599,10 @@
       const canvasScale = document.getElementById("canvasScale");
       let currentAspect = [1, 1];
 
-      function setActive(group, selector, value) {
-        for (const button of group.querySelectorAll(selector)) {
-          button.classList.toggle("active", button.dataset.preset === value);
-        }
+      function setGroupActive(group, attr, value) {
+        group.querySelectorAll("button").forEach(b => {
+          b.classList.toggle("active", b.dataset[attr] === value);
+        });
       }
 
       function applyCanvasSize() {
@@ -348,53 +617,49 @@
       aspectGroup.addEventListener("click", (event) => {
         const btn = event.target.closest("button[data-aspect]");
         if (!btn) return;
-        for (const b of aspectGroup.querySelectorAll("button")) b.classList.remove("active");
-        btn.classList.add("active");
+        setGroupActive(aspectGroup, "aspect", btn.dataset.aspect);
         const [w, h] = btn.dataset.aspect.split(":").map(Number);
         currentAspect = [w, h];
         applyCanvasSize();
         scheduleRender();
       });
 
-      canvasScale.addEventListener("input", () => {
-        applyCanvasSize();
-        scheduleRender();
-      });
-      canvasScale.addEventListener("change", () => {
-        applyCanvasSize();
-        scheduleRender();
-      });
+      canvasScale.addEventListener("input", () => { applyCanvasSize(); scheduleRender(); });
+      canvasScale.addEventListener("change", () => { applyCanvasSize(); scheduleRender(); });
 
       function updateValuePills() {
         for (const pill of document.querySelectorAll("[data-val-for]")) {
           const id = pill.getAttribute("data-val-for");
           const el = els[id] || document.getElementById(id);
-          const val = el?.value;
-          if (val !== undefined) pill.textContent = val;
+          if (el?.value !== undefined) pill.textContent = el.value;
         }
       }
 
-      async function render() {
-        status.textContent = "Rendering...";
+      async function render(animate = false) {
+        status.textContent = "Rendering…";
+        if (animate) {
+          frame.classList.remove("transitioning");
+          void frame.offsetWidth;
+          frame.classList.add("transitioning");
+        }
         try {
           const response = await fetch(`/api/svg?${params().toString()}`);
           const svg = await response.text();
           frame.innerHTML = svg;
-          status.textContent = "Rendered.";
+          status.textContent = "Rendered";
         } catch (error) {
           status.textContent = `Error: ${error}`;
         }
       }
+      frame.addEventListener("animationend", () => frame.classList.remove("transitioning"));
 
       async function applyConstraints() {
         try {
-          const presetsResponse = await fetch("/api/presets");
-          const presetData = await presetsResponse.json();
-          presetValues = presetData?.values || {};
+          const res = await fetch("/api/presets");
+          const data = await res.json();
+          presetValues = data?.values || {};
           updateValuePills();
-        } catch {
-          // fallback
-        }
+        } catch {}
       }
 
       function scheduleRender() {
@@ -403,21 +668,15 @@
       }
 
       for (const id of ids) {
-        els[id].addEventListener("input", () => {
-          updateValuePills();
-          scheduleRender();
-        });
-        els[id].addEventListener("change", () => {
-          updateValuePills();
-          scheduleRender();
-        });
+        els[id].addEventListener("input", () => { updateValuePills(); scheduleRender(); });
+        els[id].addEventListener("change", () => { updateValuePills(); scheduleRender(); });
       }
 
       presetGroup.addEventListener("click", (event) => {
         const btn = event.target.closest("button[data-preset]");
         if (!btn) return;
         els.preset.value = btn.dataset.preset;
-        setActive(presetGroup, "button[data-preset]", els.preset.value);
+        setGroupActive(presetGroup, "preset", els.preset.value);
         const preset = presetValues?.[els.preset.value];
         if (!preset) return;
         if (preset.gridCols !== undefined) els.gridCols.value = preset.gridCols;
@@ -429,32 +688,92 @@
         if (preset.styleEnergy !== undefined) els.energy.value = preset.styleEnergy;
         if (preset.styleContrast !== undefined) els.contrast.value = preset.styleContrast;
         if (preset.styleTexture !== undefined) els.texture.value = preset.styleTexture;
+        if (preset.gravity !== undefined) els.gravity.value = preset.gravity;
+        if (preset.scaleVariance !== undefined) els.scaleVariance.value = preset.scaleVariance;
+        if (preset.focusX !== undefined) els.focusX.value = preset.focusX;
+        if (preset.focusY !== undefined) els.focusY.value = preset.focusY;
+        if (preset.invert !== undefined) els.invert.value = preset.invert;
+        if (preset.mirror !== undefined) els.mirror.value = preset.mirror;
+        if (preset.mirrorGap !== undefined) els.mirrorGap.value = preset.mirrorGap;
+        if (preset.clipShape !== undefined) els.clipShape.value = preset.clipShape;
+        if (preset.clipInset !== undefined) els.clipInset.value = preset.clipInset;
+        syncToggles(); syncMirrorGroup(); syncClipGroup();
         updateValuePills();
-        render();
+        render(true);
       });
 
       randomize.addEventListener("click", () => {
         els.seed.value = Math.floor(Math.random() * 2000000000) + 1;
-        updateValuePills();
-        render();
+        updateValuePills(); render(true);
       });
-
       seedPrev.addEventListener("click", () => {
-        const current = Number(els.seed.value) || 1;
-        els.seed.value = Math.max(1, current - 1);
-        updateValuePills();
-        render();
+        els.seed.value = Math.max(1, (Number(els.seed.value) || 1) - 1);
+        updateValuePills(); render(true);
+      });
+      seedNext.addEventListener("click", () => {
+        els.seed.value = (Number(els.seed.value) || 1) + 1;
+        updateValuePills(); render(true);
       });
 
-      seedNext.addEventListener("click", () => {
-        const current = Number(els.seed.value) || 1;
-        els.seed.value = current + 1;
-        updateValuePills();
-        render();
+      function syncToggles() {
+        document.querySelectorAll("[data-toggle]").forEach(btn => {
+          const h = document.getElementById(btn.dataset.toggle);
+          const on = h.value === "1";
+          btn.classList.toggle("active", on);
+          btn.textContent = on ? "on" : "off";
+        });
+      }
+      document.querySelectorAll("[data-toggle]").forEach((btn) => {
+        const key = btn.dataset.toggle;
+        const hiddenEl = document.getElementById(key);
+        syncToggles();
+        btn.addEventListener("click", () => {
+          hiddenEl.value = hiddenEl.value === "1" ? "0" : "1";
+          syncToggles(); render();
+        });
+      });
+
+      const mirrorGroup = document.getElementById("mirror-group");
+      function syncMirrorGroup() {
+        mirrorGroup.querySelectorAll("[data-mirror]").forEach(b => {
+          b.classList.toggle("active", b.dataset.mirror === els.mirror.value);
+        });
+      }
+      syncMirrorGroup();
+      mirrorGroup.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-mirror]");
+        if (!btn) return;
+        els.mirror.value = btn.dataset.mirror;
+        syncMirrorGroup(); render();
+      });
+
+      const clipGroup = document.getElementById("clip-group");
+      function syncClipGroup() {
+        clipGroup.querySelectorAll("[data-clip]").forEach(b => {
+          b.classList.toggle("active", b.dataset.clip === els.clipShape.value);
+        });
+      }
+      syncClipGroup();
+      clipGroup.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-clip]");
+        if (!btn) return;
+        els.clipShape.value = btn.dataset.clip;
+        syncClipGroup(); render();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+        const key = e.key;
+        if (key >= "0" && key <= "6") { els.clipShape.value = key; syncClipGroup(); render(); return; }
+        if (key === "i") { els.invert.value = els.invert.value === "1" ? "0" : "1"; syncToggles(); render(); return; }
+        if (key === "m") { els.mirror.value = ((Number(els.mirror.value) || 0) + 1) % 4; syncMirrorGroup(); render(); return; }
+        if (key === "r" || key === " ") { e.preventDefault(); els.seed.value = Math.floor(Math.random() * 2000000000) + 1; updateValuePills(); render(true); return; }
+        if (key === "ArrowLeft") { els.seed.value = Math.max(1, (Number(els.seed.value) || 1) - 1); updateValuePills(); render(true); return; }
+        if (key === "ArrowRight") { els.seed.value = (Number(els.seed.value) || 1) + 1; updateValuePills(); render(true); return; }
       });
 
       applyConstraints().then(() => {
-        setActive(presetGroup, "button[data-preset]", els.preset.value);
+        setGroupActive(presetGroup, "preset", els.preset.value);
         updateValuePills();
         render();
       });
