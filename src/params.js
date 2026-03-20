@@ -29,7 +29,10 @@ export const PARAM_DEFS = {
   mirror: { default: 0, min: 0, max: 3, integer: true, step: 1 },
   mirrorGap: { default: 0, min: 0, max: 80, integer: false, step: 1 },
   clipShape: { default: 0, min: 0, max: 6, integer: true, step: 1 },
-  clipInset: { default: 40, min: 0, max: 200, integer: false, step: 1 }
+  clipInset: { default: 40, min: 0, max: 200, integer: false, step: 1 },
+  colorMode: { default: 0, min: 0, max: 1, integer: true, step: 1 },
+  fgColor: { default: "", type: "color" },
+  bgColor: { default: "", type: "color" }
 };
 
 function clamp(value, min, max) {
@@ -85,11 +88,18 @@ export function buildConfigFromRaw({ presetName = "balanced", raw = {} } = {}) {
     mirror: raw.mirror ?? preset.mirror ?? PARAM_DEFS.mirror.default,
     mirrorGap: raw.mirrorGap ?? preset.mirrorGap ?? PARAM_DEFS.mirrorGap.default,
     clipShape: raw.clipShape ?? preset.clipShape ?? PARAM_DEFS.clipShape.default,
-    clipInset: raw.clipInset ?? preset.clipInset ?? PARAM_DEFS.clipInset.default
+    clipInset: raw.clipInset ?? preset.clipInset ?? PARAM_DEFS.clipInset.default,
+    colorMode: raw.colorMode ?? preset.colorMode ?? PARAM_DEFS.colorMode.default,
+    fgColor: raw.fgColor || "",
+    bgColor: raw.bgColor || ""
   };
 
   const config = {};
   for (const key of Object.keys(PARAM_DEFS)) {
+    if (PARAM_DEFS[key].type === "color") {
+      config[key] = merged[key] || "";
+      continue;
+    }
     config[key] = normalizeValue(key, merged[key]);
   }
 

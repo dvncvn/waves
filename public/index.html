@@ -235,6 +235,47 @@
         font-weight: 500;
       }
 
+      /* Color pickers */
+      .color-field {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 6px;
+        align-items: center;
+      }
+      input[type="color"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 32px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--surface-raised);
+        cursor: pointer;
+        padding: 2px;
+      }
+      input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+      input[type="color"]::-webkit-color-swatch {
+        border: none;
+        border-radius: 4px;
+      }
+      input[type="color"].auto-color {
+        opacity: 0.35;
+      }
+      .color-reset {
+        padding: 6px 10px;
+        font-family: var(--mono);
+        font-size: 10px;
+        background: var(--surface-raised);
+        color: var(--text-tertiary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: all 0.12s;
+        white-space: nowrap;
+      }
+      .color-reset:hover { color: var(--text); border-color: #333; }
+      .color-reset.is-auto { color: var(--accent); border-color: var(--accent); }
+
       /* Viewer */
       .viewer {
         padding: 32px;
@@ -257,18 +298,13 @@
         width: 100%;
         height: auto;
       }
-      .frame {
-        perspective: 800px;
-        transform-style: preserve-3d;
-      }
       .frame.transitioning svg {
-        animation: seed-shift 380ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        animation: seed-pulse 320ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
       }
-      @keyframes seed-shift {
-        0%   { transform: scale(1) rotateY(0deg); filter: blur(0px); opacity: 1; }
-        25%  { transform: scale(0.96) rotateY(6deg); filter: blur(3px); opacity: 0.6; }
-        50%  { transform: scale(0.98) rotateY(-3deg); filter: blur(1.5px); opacity: 0.8; }
-        100% { transform: scale(1) rotateY(0deg); filter: blur(0px); opacity: 1; }
+      @keyframes seed-pulse {
+        0%   { transform: scale(1); opacity: 1; }
+        40%  { transform: scale(1.035); opacity: 0.85; }
+        100% { transform: scale(1); opacity: 1; }
       }
 
       /* Status bar */
@@ -435,6 +471,27 @@
               <input id="invert" type="hidden" value="0" />
             </div>
           </div>
+          <div class="field">
+            <label>color <span class="hint">(c)</span></label>
+            <button type="button" id="color-btn" class="toggle-btn" data-toggle="colorMode">off</button>
+            <input id="colorMode" type="hidden" value="0" />
+          </div>
+        </div>
+        <div class="row color-pickers" id="color-pickers" style="display:none">
+          <div class="field">
+            <label>foreground</label>
+            <div class="color-field">
+              <input id="fgColor" type="color" value="#000000" />
+              <button type="button" class="color-reset" data-reset="fgColor">auto</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>background</label>
+            <div class="color-field">
+              <input id="bgColor" type="color" value="#ffffff" />
+              <button type="button" class="color-reset" data-reset="bgColor">auto</button>
+            </div>
+          </div>
         </div>
 
         <!-- Mirror -->
@@ -564,6 +621,7 @@
         "focusX", "focusY",
         "invert", "mirror", "mirrorGap",
         "clipShape", "clipInset",
+        "colorMode",
         "width", "height"
       ];
       const els = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
@@ -585,13 +643,21 @@
         focusX: "focusX", focusY: "focusY",
         invert: "invert", mirror: "mirror", mirrorGap: "mirrorGap",
         clipShape: "clipShape", clipInset: "clipInset",
+        colorMode: "colorMode",
         width: "width", height: "height"
       };
+
+      const fgColorEl = document.getElementById("fgColor");
+      const bgColorEl = document.getElementById("bgColor");
+      const colorPickers = document.getElementById("color-pickers");
+      let fgAuto = true, bgAuto = true;
 
       function params() {
         const p = new URLSearchParams();
         p.set("mode", "grid");
         for (const id of ids) p.set(id, String(els[id].value));
+        if (!fgAuto) p.set("fgColor", fgColorEl.value);
+        if (!bgAuto) p.set("bgColor", bgColorEl.value);
         return p;
       }
 
@@ -697,15 +763,45 @@
         if (preset.mirrorGap !== undefined) els.mirrorGap.value = preset.mirrorGap;
         if (preset.clipShape !== undefined) els.clipShape.value = preset.clipShape;
         if (preset.clipInset !== undefined) els.clipInset.value = preset.clipInset;
+        if (preset.colorMode !== undefined) els.colorMode.value = preset.colorMode;
         syncToggles(); syncMirrorGroup(); syncClipGroup();
         updateValuePills();
         render(true);
       });
 
-      randomize.addEventListener("click", () => {
+      function randRange(min, max, step) {
+        const range = max - min;
+        const raw = min + Math.random() * range;
+        return step < 1 ? Math.round(raw / step) * step : Math.round(raw);
+      }
+      function randomizeAll() {
         els.seed.value = Math.floor(Math.random() * 2000000000) + 1;
+        els.gridCols.value = randRange(6, 28, 1);
+        els.gridRows.value = randRange(8, 40, 1);
+        els.tilePadding.value = randRange(0, 20, 1);
+        els.amp.value = randRange(30, 200, 1);
+        els.sparsity.value = randRange(0, 0.4, 0.01);
+        els.simplicity.value = randRange(0, 0.4, 0.01);
+        els.energy.value = randRange(0.15, 0.95, 0.01);
+        els.contrast.value = randRange(0.15, 0.95, 0.01);
+        els.texture.value = randRange(0, 0.8, 0.01);
+        els.gravity.value = randRange(-0.6, 0.6, 0.01);
+        els.scaleVariance.value = randRange(0, 0.8, 0.01);
+        els.focusX.value = randRange(0.1, 0.9, 0.01);
+        els.focusY.value = randRange(0.1, 0.9, 0.01);
+        els.invert.value = Math.random() < 0.3 ? "1" : "0";
+        els.colorMode.value = Math.random() < 0.35 ? "1" : "0";
+        const mirrorRoll = Math.random();
+        els.mirror.value = mirrorRoll < 0.5 ? "0" : mirrorRoll < 0.7 ? "1" : mirrorRoll < 0.85 ? "2" : "3";
+        els.mirrorGap.value = Number(els.mirror.value) > 0 ? randRange(0, 40, 1) : 0;
+        const clipRoll = Math.random();
+        els.clipShape.value = clipRoll < 0.55 ? "0" : String(Math.floor(Math.random() * 6) + 1);
+        els.clipInset.value = Number(els.clipShape.value) > 0 ? randRange(20, 100, 1) : 40;
+        fgAuto = true; bgAuto = true;
+        syncToggles(); syncMirrorGroup(); syncClipGroup();
         updateValuePills(); render(true);
-      });
+      }
+      randomize.addEventListener("click", randomizeAll);
       seedPrev.addEventListener("click", () => {
         els.seed.value = Math.max(1, (Number(els.seed.value) || 1) - 1);
         updateValuePills(); render(true);
@@ -722,6 +818,7 @@
           btn.classList.toggle("active", on);
           btn.textContent = on ? "on" : "off";
         });
+        syncColorPickers();
       }
       document.querySelectorAll("[data-toggle]").forEach((btn) => {
         const key = btn.dataset.toggle;
@@ -732,6 +829,28 @@
           syncToggles(); render();
         });
       });
+
+      function syncColorPickers() {
+        const on = els.colorMode.value === "1";
+        colorPickers.style.display = on ? "grid" : "none";
+        fgColorEl.classList.toggle("auto-color", fgAuto);
+        bgColorEl.classList.toggle("auto-color", bgAuto);
+        document.querySelectorAll(".color-reset").forEach(btn => {
+          const isAuto = btn.dataset.reset === "fgColor" ? fgAuto : bgAuto;
+          btn.classList.toggle("is-auto", isAuto);
+          btn.textContent = isAuto ? "auto" : "manual";
+        });
+      }
+      fgColorEl.addEventListener("input", () => { fgAuto = false; syncColorPickers(); scheduleRender(); });
+      bgColorEl.addEventListener("input", () => { bgAuto = false; syncColorPickers(); scheduleRender(); });
+      document.querySelectorAll(".color-reset").forEach(btn => {
+        btn.addEventListener("click", () => {
+          if (btn.dataset.reset === "fgColor") fgAuto = !fgAuto;
+          else bgAuto = !bgAuto;
+          syncColorPickers(); render();
+        });
+      });
+      syncColorPickers();
 
       const mirrorGroup = document.getElementById("mirror-group");
       function syncMirrorGroup() {
@@ -766,8 +885,9 @@
         const key = e.key;
         if (key >= "0" && key <= "6") { els.clipShape.value = key; syncClipGroup(); render(); return; }
         if (key === "i") { els.invert.value = els.invert.value === "1" ? "0" : "1"; syncToggles(); render(); return; }
+        if (key === "c") { els.colorMode.value = els.colorMode.value === "1" ? "0" : "1"; syncToggles(); render(true); return; }
         if (key === "m") { els.mirror.value = ((Number(els.mirror.value) || 0) + 1) % 4; syncMirrorGroup(); render(); return; }
-        if (key === "r" || key === " ") { e.preventDefault(); els.seed.value = Math.floor(Math.random() * 2000000000) + 1; updateValuePills(); render(true); return; }
+        if (key === "r" || key === " ") { e.preventDefault(); randomizeAll(); return; }
         if (key === "ArrowLeft") { els.seed.value = Math.max(1, (Number(els.seed.value) || 1) - 1); updateValuePills(); render(true); return; }
         if (key === "ArrowRight") { els.seed.value = (Number(els.seed.value) || 1) + 1; updateValuePills(); render(true); return; }
       });

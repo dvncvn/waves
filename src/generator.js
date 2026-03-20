@@ -636,6 +636,41 @@ function buildClipDef(shape, w, h, inset) {
   return { def: `<clipPath id="vclip">${el}</clipPath>`, attr: 'clip-path="url(#vclip)"' };
 }
 
+function hsl(h, s, l) {
+  return `hsl(${h.toFixed(0)}, ${s.toFixed(0)}%, ${l.toFixed(0)}%)`;
+}
+
+function generateColorPair(seed) {
+  const rng = createRng(seed * 2731 + 1549);
+  const strategy = Math.floor(rng() * 5);
+
+  switch (strategy) {
+    case 0: {
+      const h = rng() * 360;
+      return { bg: hsl(h, 25 + rng() * 40, 12 + rng() * 15), fg: hsl(h, 30 + rng() * 30, 80 + rng() * 15) };
+    }
+    case 1: {
+      const h1 = rng() * 360;
+      const h2 = (h1 + 150 + rng() * 60) % 360;
+      return { bg: hsl(h1, 50 + rng() * 40, 15 + rng() * 10), fg: hsl(h2, 60 + rng() * 30, 70 + rng() * 20) };
+    }
+    case 2: {
+      const h = rng() * 360;
+      return { bg: hsl(h, 70 + rng() * 25, 55 + rng() * 15), fg: hsl((h + 180) % 360, 10 + rng() * 20, 5 + rng() * 10) };
+    }
+    case 3: {
+      const h = rng() * 360;
+      const s = 60 + rng() * 35;
+      return { bg: hsl(h, s, 85 + rng() * 10), fg: hsl(h, s, 15 + rng() * 15) };
+    }
+    default: {
+      const h1 = rng() * 360;
+      const h2 = (h1 + 40 + rng() * 30) % 360;
+      return { bg: hsl(h1, 40 + rng() * 30, 20 + rng() * 10), fg: hsl(h2, 70 + rng() * 25, 65 + rng() * 20) };
+    }
+  }
+}
+
 export function generateWaveSvg(userConfig = {}) {
   const config = buildConfigFromRaw({ presetName: "balanced", raw: userConfig });
   const rng = createRng(config.seed ?? 1);
@@ -648,8 +683,15 @@ export function generateWaveSvg(userConfig = {}) {
           height: config.height - config.margin * 2
         });
 
-  const bg = config.invert ? "black" : "white";
-  const fg = config.invert ? "white" : "black";
+  let bg, fg;
+  if (config.colorMode === 1) {
+    const pair = generateColorPair(config.seed);
+    bg = config.bgColor || (config.invert ? pair.fg : pair.bg);
+    fg = config.fgColor || (config.invert ? pair.bg : pair.fg);
+  } else {
+    bg = config.bgColor || (config.invert ? "black" : "white");
+    fg = config.fgColor || (config.invert ? "white" : "black");
+  }
   const clip = buildClipDef(config.clipShape, config.width, config.height, config.clipInset);
 
   const parts = [

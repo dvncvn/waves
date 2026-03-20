@@ -45,7 +45,10 @@ function buildConfig(params) {
       mirror: params.get("mirror"),
       mirrorGap: params.get("mirrorGap"),
       clipShape: params.get("clipShape"),
-      clipInset: params.get("clipInset")
+      clipInset: params.get("clipInset"),
+      colorMode: params.get("colorMode"),
+      fgColor: params.get("fgColor"),
+      bgColor: params.get("bgColor")
     }
   });
 }
