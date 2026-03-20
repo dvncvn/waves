@@ -1,19 +1,19 @@
 # Waves
 
-Generative waveform-based pen-plotter art with controlled randomness and seed reproducibility.
+Small marks, arranged. A grid of black shapes on white — each one different, none repeated. Some jagged, some smooth, some barely there.
 
-## Current State
-- Git repository initialized.
-- Planning, process docs, and runnable scaffold in place:
-  - `requires.md`
-  - `AGENTS.md`
-  - `plan.md`
-  - `package.json`
-  - `src/generator.js`
-  - `src/cli.js`
+Seeded randomness means every composition is reproducible. Same number in, same field out. Change the seed and the whole world shifts.
 
-## Quick Start
-- Run: `npm run generate`
-- Sample fixed-seed run: `npm run generate:sample`
-- Custom run example:
-  - `node src/cli.js --seed 12345 --rows 56 --amp 5.2 --freq 0.07 --out output/seed-12345.svg`
+## Run
+
+```
+npm run dev
+```
+
+Open `http://localhost:5173` and explore.
+
+## Generate
+
+```
+node src/cli.js --seed 20260320 --out output/composition.svg
+```

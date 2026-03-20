@@ -5,8 +5,10 @@
   "description": "Generative waveform pen-plotter art with controlled randomness.",
   "type": "module",
   "scripts": {
+    "dev": "node src/dev-server.js",
     "generate": "node src/cli.js",
-    "generate:sample": "node src/cli.js --seed 20260320 --out output/sample-seed-20260320.svg"
+    "generate:sample": "node src/cli.js --seed 20260320 --preset balanced --out output/sample-seed-20260320.svg",
+    "generate:batch": "node src/cli.js --batch --seedStart 20260320 --count 6 --preset balanced --out output/batch/waves.svg"
   },
   "engines": {
     "node": ">=20"
