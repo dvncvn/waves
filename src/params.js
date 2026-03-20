@@ -18,7 +18,9 @@ export const PARAM_DEFS = {
   gridCols: { default: 16, min: 1, max: 40, integer: true, step: 1 },
   gridRows: { default: 24, min: 1, max: 60, integer: true, step: 1 },
   rowsPerTile: { default: 1, min: 1, max: 20, integer: true, step: 1 },
-  tilePadding: { default: 4, min: 0, max: 60, integer: false, step: 1 }
+  tilePadding: { default: 4, min: 0, max: 60, integer: false, step: 1 },
+  sparsity: { default: 0.1, min: 0, max: 0.8, integer: false, step: 0.01 },
+  simplicity: { default: 0.15, min: 0, max: 0.8, integer: false, step: 0.01 }
 };
 
 function clamp(value, min, max) {
@@ -63,7 +65,9 @@ export function buildConfigFromRaw({ presetName = "balanced", raw = {} } = {}) {
     gridCols: raw.gridCols ?? preset.gridCols ?? PARAM_DEFS.gridCols.default,
     gridRows: raw.gridRows ?? preset.gridRows ?? PARAM_DEFS.gridRows.default,
     rowsPerTile: raw.rowsPerTile ?? preset.rowsPerTile ?? PARAM_DEFS.rowsPerTile.default,
-    tilePadding: raw.tilePadding ?? preset.tilePadding ?? PARAM_DEFS.tilePadding.default
+    tilePadding: raw.tilePadding ?? preset.tilePadding ?? PARAM_DEFS.tilePadding.default,
+    sparsity: raw.sparsity ?? preset.sparsity ?? PARAM_DEFS.sparsity.default,
+    simplicity: raw.simplicity ?? preset.simplicity ?? PARAM_DEFS.simplicity.default
   };
 
   const config = {};

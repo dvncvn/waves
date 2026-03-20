@@ -13,7 +13,9 @@ export const PRESETS = {
     gridCols: 12,
     gridRows: 18,
     rowsPerTile: 1,
-    tilePadding: 6
+    tilePadding: 6,
+    sparsity: 0.2,
+    simplicity: 0.25
   },
   balanced: {
     rows: 6,
@@ -29,7 +31,9 @@ export const PRESETS = {
     gridCols: 16,
     gridRows: 24,
     rowsPerTile: 1,
-    tilePadding: 4
+    tilePadding: 4,
+    sparsity: 0.1,
+    simplicity: 0.15
   },
   rough: {
     rows: 10,
@@ -45,7 +49,9 @@ export const PRESETS = {
     gridCols: 20,
     gridRows: 30,
     rowsPerTile: 1,
-    tilePadding: 2
+    tilePadding: 2,
+    sparsity: 0.05,
+    simplicity: 0.08
   }
 };
 

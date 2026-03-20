@@ -198,6 +198,23 @@
           </div>
         </div>
 
+        <div class="row">
+          <div class="field">
+            <label for="sparsity">sparsity</label>
+            <div class="slider-wrap">
+              <input id="sparsity" type="range" min="0" max="0.8" step="0.01" value="0.1" />
+              <div class="value-pill" data-val-for="sparsity"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label for="simplicity">simplicity</label>
+            <div class="slider-wrap">
+              <input id="simplicity" type="range" min="0" max="0.8" step="0.01" value="0.15" />
+              <div class="value-pill" data-val-for="simplicity"></div>
+            </div>
+          </div>
+        </div>
+
         <div class="section-title">Style</div>
         <div class="row">
           <div class="field">
@@ -269,6 +286,8 @@
         "gridRows",
         "tilePadding",
         "amp",
+        "sparsity",
+        "simplicity",
         "energy",
         "contrast",
         "texture",
@@ -291,6 +310,8 @@
         gridRows: "gridRows",
         tilePadding: "tilePadding",
         amp: "baseAmplitude",
+        sparsity: "sparsity",
+        simplicity: "simplicity",
         energy: "styleEnergy",
         contrast: "styleContrast",
         texture: "styleTexture",
@@ -403,6 +424,8 @@
         if (preset.gridRows !== undefined) els.gridRows.value = preset.gridRows;
         if (preset.tilePadding !== undefined) els.tilePadding.value = preset.tilePadding;
         if (preset.baseAmplitude !== undefined) els.amp.value = preset.baseAmplitude;
+        if (preset.sparsity !== undefined) els.sparsity.value = preset.sparsity;
+        if (preset.simplicity !== undefined) els.simplicity.value = preset.simplicity;
         if (preset.styleEnergy !== undefined) els.energy.value = preset.styleEnergy;
         if (preset.styleContrast !== undefined) els.contrast.value = preset.styleContrast;
         if (preset.styleTexture !== undefined) els.texture.value = preset.styleTexture;

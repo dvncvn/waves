@@ -76,7 +76,36 @@ function buildContour(rng, width, config) {
     x += chunk;
   }
 
-  return points;
+  return applyTexture(rng, points, config);
+}
+
+function applyTexture(rng, points, config) {
+  const t = config.styleTexture;
+  if (points.length < 2 || t < 0.01) return points;
+
+  const amp = config.baseAmplitude;
+  const roughScale = t * t * amp * 0.6;
+  const quantStep = t > 0.4 ? amp * rangeMap(t, 0.4, 1, 0.15, 0.5) : 0;
+
+  const out = [];
+  for (let i = 0; i < points.length; i++) {
+    let { x, y } = points[i];
+
+    y += (rng() * 2 - 1) * roughScale;
+
+    if (quantStep > 0.5) {
+      y = Math.round(y / quantStep) * quantStep;
+    }
+
+    out.push({ x, y });
+  }
+
+  if (t > 0.6 && out.length > 4) {
+    const skipRate = rangeMap(t, 0.6, 1, 0.02, 0.12);
+    return out.filter(() => rng() > skipRate);
+  }
+
+  return out;
 }
 
 function genPlateauDrop(rng, xStart, width, maxD, config) {
@@ -364,6 +393,53 @@ function drawRowField(config, rng, bounds) {
   return lines;
 }
 
+function simpleShape(rng, cx, cy, w, h) {
+  const kind = Math.floor(rng() * 6);
+  const hw = w * rangeMap(rng(), 0, 1, 0.2, 0.7);
+  const hh = h * rangeMap(rng(), 0, 1, 0.04, 0.18);
+
+  switch (kind) {
+    case 0: {
+      const x1 = cx - hw / 2;
+      return `<rect x="${x1.toFixed(1)}" y="${(cy - hh / 2).toFixed(1)}" width="${hw.toFixed(1)}" height="${hh.toFixed(1)}" fill="black" />`;
+    }
+    case 1: {
+      const r = Math.min(hw, hh) * rangeMap(rng(), 0, 1, 0.3, 0.8);
+      return `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r.toFixed(1)}" fill="black" />`;
+    }
+    case 2: {
+      const x1 = cx - hw / 2;
+      const x2 = cx + hw / 2;
+      const sw = hh * rangeMap(rng(), 0, 1, 0.5, 2);
+      return `<line x1="${x1.toFixed(1)}" y1="${cy.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${cy.toFixed(1)}" stroke="black" stroke-width="${sw.toFixed(1)}" />`;
+    }
+    case 3: {
+      const th = h * rangeMap(rng(), 0, 1, 0.1, 0.3);
+      const tw = w * rangeMap(rng(), 0, 1, 0.15, 0.4);
+      const d = rng() < 0.5
+        ? `M ${(cx - tw / 2).toFixed(1)} ${cy.toFixed(1)} L ${(cx + tw / 2).toFixed(1)} ${cy.toFixed(1)} L ${cx.toFixed(1)} ${(cy - th).toFixed(1)} Z`
+        : `M ${(cx - tw / 2).toFixed(1)} ${cy.toFixed(1)} L ${(cx + tw / 2).toFixed(1)} ${cy.toFixed(1)} L ${cx.toFixed(1)} ${(cy + th).toFixed(1)} Z`;
+      return `<path d="${d}" fill="black" />`;
+    }
+    case 4: {
+      const vw = hh * rangeMap(rng(), 0, 1, 0.3, 1.2);
+      const vh = h * rangeMap(rng(), 0, 1, 0.15, 0.35);
+      return `<rect x="${(cx - vw / 2).toFixed(1)}" y="${(cy - vh / 2).toFixed(1)}" width="${vw.toFixed(1)}" height="${vh.toFixed(1)}" fill="black" />`;
+    }
+    default: {
+      const count = 2 + Math.floor(rng() * 3);
+      const gap = hw / count;
+      const dotR = Math.min(gap * 0.3, hh * 0.6);
+      let svg = "";
+      for (let i = 0; i < count; i++) {
+        const dx = cx - hw / 2 + gap * (i + 0.5);
+        svg += `<circle cx="${dx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${dotR.toFixed(1)}" fill="black" />`;
+      }
+      return svg;
+    }
+  }
+}
+
 function drawGridField(config, baseSeed) {
   const shapes = [];
   const innerWidth = config.width - config.margin * 2;
@@ -382,6 +458,9 @@ function drawGridField(config, baseSeed) {
     for (let gx = 0; gx < cols; gx += 1) {
       const tileSeed = baseSeed + (gy * cols + gx) * 997;
       const rng = createRng(tileSeed);
+      const roll = rng();
+
+      if (roll < config.sparsity) continue;
 
       const nx = gx / Math.max(1, cols - 1);
       const ny = gy / Math.max(1, rows - 1);
@@ -392,8 +471,15 @@ function drawGridField(config, baseSeed) {
       const cellY = config.margin + gy * tileHeight + pad * 0.5;
       const w = Math.max(4, tileWidth - pad);
       const h = Math.max(4, tileHeight - pad);
-      const yBase = cellY + h * 0.5;
+      const cx = cellX + w * 0.5;
+      const cy = cellY + h * 0.5;
 
+      if (roll < config.sparsity + config.simplicity) {
+        shapes.push(simpleShape(rng, cx, cy, w, h));
+        continue;
+      }
+
+      const yBase = cy;
       const cellAmpBudget = h * 0.3;
       const localAmp = Math.min(cellAmpBudget, config.baseAmplitude * focusBoost * rangeMap(rng(), 0, 1, 0.15, 0.7));
 

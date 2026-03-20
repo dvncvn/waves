@@ -34,7 +34,9 @@ function buildConfig(params) {
       gridCols: params.get("gridCols"),
       gridRows: params.get("gridRows"),
       rowsPerTile: params.get("rowsPerTile"),
-      tilePadding: params.get("tilePadding")
+      tilePadding: params.get("tilePadding"),
+      sparsity: params.get("sparsity"),
+      simplicity: params.get("simplicity")
     }
   });
 }
